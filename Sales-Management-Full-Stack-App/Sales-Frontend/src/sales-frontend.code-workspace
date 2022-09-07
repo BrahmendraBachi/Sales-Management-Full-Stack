@@ -1,0 +1,20 @@
+{
+  "folders": [
+	{
+		"path": ".."
+	},
+	{
+		"path": "../../my-app"
+	},
+	{
+		"path": "../../sample-chart"
+	},
+	{
+		"path": "../../bus-management"
+	},
+	{
+		"path": "../../bingo-game"
+	}
+],
+  "settings": {}
+}
