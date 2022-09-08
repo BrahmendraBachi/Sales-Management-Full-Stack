@@ -10,6 +10,7 @@ CommisionModel(update),
 View Vehicles Sales Data as Graph,
 Upload Sales Data,
 Approve Vehicle Sold data
+qewftetv
 
 
 # Sales Person
