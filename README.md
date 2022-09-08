@@ -1,6 +1,6 @@
 # Sales-Management-Full-Stack
 
-# Admin
+## Admin
 
 Sales Person(add, delete, update, view sales)
 Zones(add, delete, update)
