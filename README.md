@@ -12,6 +12,8 @@ Upload Sales Data,
 Approve Vehicle Sold data
 qewftetv
 
+asdcasd
+
 
 # Sales Person
 View his monthly Sales(with monthly commision), 
