@@ -40,13 +40,11 @@ public class EmployeeService {
 
     @Autowired
     private AdminService adminService;
-    public Employee getEmployee(String username)
-    {
+
+    public Employee getEmployee(String username) {
         List<Employee> employees = employeeRepository.findAll();
-        for(Employee employee : employees)
-        {
-            if(employee.getEmailId().equals(username))
-            {
+        for (Employee employee : employees) {
+            if (employee.getEmailId().equals(username)) {
                 return employee;
             }
         }
@@ -127,86 +125,102 @@ public class EmployeeService {
     public List<MonthlySales> findAllProductsSoldById(int id) {
         String empId = employeeRepository.findById(id).get().getEmpId();
 
-        int sMonth = Integer.parseInt(productSoldRepository.findByEmpId(empId).get(0).getDateSold().substring(5, 7));
+        String dateSold = productSoldRepository.findByEmpId(empId).get(0).getDateSold();
 
-        SimpleDateFormat formatter = new SimpleDateFormat("MM");
+        int sMonth = Integer.parseInt(dateSold.substring(5, 7));
+        int sYear = Integer.parseInt(dateSold.substring(0, 4));
+
+        SimpleDateFormat formatterMonth = new SimpleDateFormat("MM");
+        SimpleDateFormat formatterYear = new SimpleDateFormat("YYYY");
 
         Date date = new Date();
 
         List<MonthlySales> allMonthlySales = new ArrayList<>();
 
-        int tMonth = Integer.parseInt(formatter.format(date));
+        int tMonth = Integer.parseInt(formatterMonth.format(date));
+        int tYear = Integer.parseInt(formatterYear.format(date));
 
-        for(int i=sMonth;i<=tMonth;i++)
-        {
-            MonthlySales monthlySales = new MonthlySales();
+        while (sYear <= tYear) {
+            int tempMonth = sYear == tYear ? tMonth : 12;
+            for (int i = sMonth; i <= tempMonth; i++) {
+                MonthlySales monthlySales = new MonthlySales();
 
-            String monthName = new DateFormatSymbols().getMonths()[i-1];
+                String monthName = new DateFormatSymbols().getMonths()[i - 1];
 
-            monthlySales.setMonth(monthName + " - " + 2022);
+                monthlySales.setMonth(monthName + " - " + 2022);
 
-            List<ProductSold> productsSold = productSoldRepository.findByEmpIdandMonth(empId, monthName);
+                List<ProductSold> productsSold = productSoldRepository.findByEmpIdandMonth(empId, monthName, "" + sYear);
+                if (productsSold.size() > 0) {
 
-            monthlySales.setProductsSold(productsSold);
+                    monthlySales.setProductsSold(productsSold);
 
-            float directCommision = commission(productsSold);
+                    float directCommision = commission(productsSold);
 
-            float indirectCommision = indirectCommision(empId, monthName);
+                    float indirectCommision = indirectCommision(empId, monthName, "" + sYear);
 
-            Long totalSales = productSoldRepository.totalSales(empId, monthName);
+                    Long totalSales = productSoldRepository.totalSales(empId, monthName);
 
-            monthlySales.setTotalSales(totalSales);
+                    monthlySales.setTotalSales(totalSales);
 
-            directCommision = isAddExtraCommision(directCommision, empId, totalSales);
+                    directCommision = isAddExtraCommision(directCommision, empId, totalSales);
 
-            System.out.println("Total Commision ::::: " + directCommision);
+                    System.out.println("Total Commision ::::: " + directCommision);
 
-            float totalCommision = directCommision + indirectCommision;
+                    float totalCommision = directCommision + indirectCommision;
 
-            monthlySales.setCommision(totalCommision);
+                    monthlySales.setCommision(totalCommision);
 
-            allMonthlySales.add(monthlySales);
+                    allMonthlySales.add(monthlySales);
+                }
+            }
+            sMonth = 1;
+            sYear++;
         }
 
         return allMonthlySales;
     }
 
 
-    public float calculateCommision(int commision, Long cost)
-    {
-        return commision*cost/100;
+    public float calculateCommision(int commision, Long cost) {
+        return commision * cost / 100;
     }
 
     public List<MonthlySalesData> getSalesDataById(int id) throws SQLException {
         String empId = employeeRepository.findById(id).get().getEmpId();
 
         List<MonthlySalesData> allMonthlySalesData = new ArrayList<>();
+        String dateSold = productSoldRepository.findById(1).get().getDateSold();
+        int sMonth = Integer.parseInt(dateSold.substring(5, 7));
+        int sYear = Integer.parseInt(dateSold.substring(0, 4));
 
-        int sMonth = Integer.parseInt(productSoldRepository.findById(1).get().getDateSold().substring(5,7));
-
-        SimpleDateFormat formatter = new SimpleDateFormat("MM");
+        SimpleDateFormat formatterMonth = new SimpleDateFormat("MM");
+        SimpleDateFormat formatterYear = new SimpleDateFormat("YYYY");
 
         Date date = new Date();
 
-        int tMonth = Integer.parseInt(formatter.format(date));
+        int tMonth = Integer.parseInt(formatterMonth.format(date));
+        int tYear = Integer.parseInt(formatterYear.format(date));
+        while (sYear <= tYear) {
 
-        for(int i=sMonth;i<=tMonth;i++)
-        {
-            String monthName = new DateFormatSymbols().getMonths()[i-1];
+            int tempMonth =  sYear == tYear ? tMonth : 12;
+            for (int i = sMonth; i <= tempMonth; i++) {
+                String monthName = new DateFormatSymbols().getMonths()[i - 1];
 
-            MonthlySalesData monthlySalesData = new MonthlySalesData();
+                MonthlySalesData monthlySalesData = new MonthlySalesData();
 
-            List<TotalSales> totalSales = resultSetExtractor.allDataForSalesPerson(monthName, empId);
+                List<TotalSales> totalSales = resultSetExtractor.allDataForSalesPerson(monthName, empId, ""+sYear);
 
-            if(totalSales.size() == 0)
-            {
-                continue;
+                if (totalSales.size() == 0) {
+                    continue;
+                }
+                monthlySalesData.setMonth(monthName + " - 2022");
+
+                monthlySalesData.setTotalSalesinMonth(totalSales);
+
+                allMonthlySalesData.add(monthlySalesData);
             }
-            monthlySalesData.setMonth(monthName + " - 2022");
-
-            monthlySalesData.setTotalSalesinMonth(totalSales);
-
-            allMonthlySalesData.add(monthlySalesData);
+            sMonth = 1;
+            sYear++;
         }
         return allMonthlySalesData;
 
@@ -215,30 +229,24 @@ public class EmployeeService {
     public float getTotalSales(List<ProductSold> dummy) {
         float totalSales = 0;
 
-        for(ProductSold product : dummy)
-        {
+        for (ProductSold product : dummy) {
 
-            totalSales+=product.getCost();
+            totalSales += product.getCost();
 
         }
 
         return totalSales;
     }
 
-    public float commission(List<ProductSold> productSoldByEmployee)
-    {
+    public float commission(List<ProductSold> productSoldByEmployee) {
         float totalCommision = 0;
         List<CommisionModel> commisionModels = commisionModelRepository.findAll();
-        for(ProductSold product : productSoldByEmployee)
-        {
+        for (ProductSold product : productSoldByEmployee) {
             String typeId = product.getTypeId();
             Long cost = product.getCost();
-            for(CommisionModel commisionModel : commisionModels)
-            {
-                if(typeId.equals("2W") && commisionModel.getTypeId().equals("2W"))
-                {
-                    if(cost<30000 && commisionModel.getCostRange().equals("<30k"))
-                    {
+            for (CommisionModel commisionModel : commisionModels) {
+                if (typeId.equals("2W") && commisionModel.getTypeId().equals("2W")) {
+                    if (cost < 30000 && commisionModel.getCostRange().equals("<30k")) {
 
                         int commision = commisionModel.getCommision();
 
@@ -246,15 +254,14 @@ public class EmployeeService {
 
                         break;
                     }
-                    if(cost>=30000 && cost<50000 && commisionModel.getCostRange().equals(">30k<50k"))
-                    {
+                    if (cost >= 30000 && cost < 50000 && commisionModel.getCostRange().equals(">30k<50k")) {
                         int commision = commisionModel.getCommision();
 
                         totalCommision += calculateCommision(commision, cost);
 
                         break;
                     }
-                    if(cost>=50000 && commisionModel.getCostRange().equals(">50k")){
+                    if (cost >= 50000 && commisionModel.getCostRange().equals(">50k")) {
 
                         int commision = commisionModel.getCommision();
 
@@ -263,61 +270,52 @@ public class EmployeeService {
 
                         break;
                     }
-                }
-                else if(typeId.equals("3W") && commisionModel.getTypeId().equals("3W"))
-                {
-                    if(cost<50000 && commisionModel.getCostRange().equals("<50k"))
-                    {
+                } else if (typeId.equals("3W") && commisionModel.getTypeId().equals("3W")) {
+                    if (cost < 50000 && commisionModel.getCostRange().equals("<50k")) {
                         int commision = commisionModel.getCommision();
 
                         totalCommision += calculateCommision(commision, cost);
 
                         break;
                     }
-                    if(cost>=50000 && commisionModel.getCostRange().equals(">50k")){
+                    if (cost >= 50000 && commisionModel.getCostRange().equals(">50k")) {
                         int commision = commisionModel.getCommision();
 
                         totalCommision += calculateCommision(commision, cost);
 
                         break;
                     }
-                }
-                else if(typeId.equals("4W") && commisionModel.getTypeId().equals("4W"))
-                {
-                    if(cost<100000 && commisionModel.getCostRange().equals("<100k"))
-                    {
+                } else if (typeId.equals("4W") && commisionModel.getTypeId().equals("4W")) {
+                    if (cost < 100000 && commisionModel.getCostRange().equals("<100k")) {
                         int commision = commisionModel.getCommision();
 
                         totalCommision += calculateCommision(commision, cost);
 
                         break;
                     }
-                    if(cost>=100000 && cost<500000 && commisionModel.getCostRange().equals(">100k<500k"))
-                    {
+                    if (cost >= 100000 && cost < 500000 && commisionModel.getCostRange().equals(">100k<500k")) {
                         int commision = commisionModel.getCommision();
 
                         totalCommision += calculateCommision(commision, cost);
 
                         break;
                     }
-                    if(cost>=500000 && commisionModel.getCostRange().equals(">500k")){
+                    if (cost >= 500000 && commisionModel.getCostRange().equals(">500k")) {
                         int commision = commisionModel.getCommision();
 
                         totalCommision += calculateCommision(commision, cost);
 
                         break;
                     }
-                }
-                else{
-                    if(cost<500000 && commisionModel.getCostRange().equals("<500k"))
-                    {
+                } else {
+                    if (cost < 500000 && commisionModel.getCostRange().equals("<500k")) {
                         int commision = commisionModel.getCommision();
 
                         totalCommision += calculateCommision(commision, cost);
 
                         break;
                     }
-                    if(cost>=500000 && commisionModel.getCostRange().equals(">500k")){
+                    if (cost >= 500000 && commisionModel.getCostRange().equals(">500k")) {
 
                         int commision = commisionModel.getCommision();
 
@@ -337,9 +335,8 @@ public class EmployeeService {
 
         float target = zoneRepository.findTargetByZoneId(zoneId);
 
-        if(target <= total)
-        {
-            return (float) 1.2*totalCommision ;
+        if (target <= total) {
+            return (float) 1.2 * totalCommision;
         }
 
         return totalCommision;
@@ -353,23 +350,24 @@ public class EmployeeService {
     public List<MonthlySales> getSalesByMonth(String str) {
         int ind = str.indexOf("d");
 
-        int id = Integer.parseInt(str.substring(0,ind));
+        int id = Integer.parseInt(str.substring(0, ind));
 
-        String date = str.substring(ind+1, ind+8);
+        String date = str.substring(ind + 1, ind + 8);
 
-        System.out.println("Month "+ date);
+        System.out.println("Month " + date);
 
         String empId = employeeRepository.findById(id).get().getEmpId();
 
         int month = Integer.parseInt(date.substring(5, 7));
+        String year = date.substring(0, 4);
 
         List<MonthlySales> monthlySales = new ArrayList<>();
 
         MonthlySales monthlySale = new MonthlySales();
 
-        String monthName = new DateFormatSymbols().getMonths()[month-1];
+        String monthName = new DateFormatSymbols().getMonths()[month - 1];
 
-        List<ProductSold> productsSold = productSoldRepository.findByEmpIdandMonth(empId, monthName);
+        List<ProductSold> productsSold = productSoldRepository.findByEmpIdandMonth(empId, monthName, year);
 
         float totalSales = productSoldRepository.totalSales(empId, monthName);
 
@@ -379,7 +377,7 @@ public class EmployeeService {
 
         directCommision = isAddExtraCommision(directCommision, empId, totalSales);
 
-        totalCommision = directCommision + indirectCommision(empId, monthName);
+        totalCommision = directCommision + indirectCommision(empId, monthName, year);
 
         monthlySale.setProductsSold(productsSold);
 
@@ -402,15 +400,16 @@ public class EmployeeService {
 
         String empId = employeeRepository.findById(id).get().getEmpId();
 
-        String month = str.substring(ind+6, ind+8);
+        String month = str.substring(ind + 6, ind + 8);
 
         List<MonthlySalesData> allMonthlySalesData = new ArrayList<>();
 
-        String monthName = new DateFormatSymbols().getMonths()[Integer.parseInt(month)-1];
+        String monthName = new DateFormatSymbols().getMonths()[Integer.parseInt(month) - 1];
+        String year = str.substring(ind+1, ind+5);
 
         MonthlySalesData monthlySalesData = new MonthlySalesData();
 
-        List<TotalSales> totalSales = resultSetExtractor.allDataForSalesPerson(monthName, empId);
+        List<TotalSales> totalSales = resultSetExtractor.allDataForSalesPerson(monthName, empId, year);
 
         monthlySalesData.setMonth(monthName + " - 2022");
 
@@ -428,29 +427,27 @@ public class EmployeeService {
 
         int ind1 = str.indexOf("-");
 
-        String year = str.substring(ind1+1, ind1+5);
+        String year = str.substring(ind1 + 1, ind1 + 5);
 
-        String monthStr = str.substring(ind+1, ind+4);
+        String monthStr = str.substring(ind + 1, ind + 4);
 
         Date date1 = new SimpleDateFormat("MMM", Locale.ENGLISH).parse(monthStr);
 
-        Calendar cal = Calendar. getInstance();
+        Calendar cal = Calendar.getInstance();
 
         cal.setTime(date1);
 
         int month = cal.get(Calendar.MONTH);
 
-        if(Integer.toString(month+1).length()<2)
-        {
+        if (Integer.toString(month + 1).length() < 2) {
 
-            monthStr = "0"+Integer.toString(month+1);
+            monthStr = "0" + Integer.toString(month + 1);
 
-        }
-        else{
-            monthStr = Integer.toString(month+1);
+        } else {
+            monthStr = Integer.toString(month + 1);
         }
 
-        String date =year+"-"+monthStr;
+        String date = year + "-" + monthStr;
 
         String empId = employeeRepository.findById(id).get().getEmpId();
 
@@ -462,10 +459,8 @@ public class EmployeeService {
 
         List<ProductSold> productSoldInMonth = new ArrayList<>();
 
-        for(ProductSold productSold : productsSold)
-        {
-            if(productSold.getDateSold().substring(0, 7).equals(date))
-            {
+        for (ProductSold productSold : productsSold) {
+            if (productSold.getDateSold().substring(0, 7).equals(date)) {
                 productSoldInMonth.add(productSold);
             }
         }
@@ -480,17 +475,15 @@ public class EmployeeService {
         return monthlyQuotas;
     }
 
-    public float indirectCommision(String empId, String monthName)
-    {
+    public float indirectCommision(String empId, String monthName, String sYear) {
         float indirectCommision = 0;
 
         int level = employeeRepository.findLevelByEmpId(empId);
 
         List<String> employees = employeeRepository.findHisEmployeesByEmpId(empId);
 
-        for(String employee : employees)
-        {
-            List<ProductSold> productSold1 = productSoldRepository.findByEmpIdandMonth(employee, monthName);
+        for (String employee : employees) {
+            List<ProductSold> productSold1 = productSoldRepository.findByEmpIdandMonth(employee, monthName, sYear);
 
             indirectCommision = indirectCommision + commission(productSold1);
         }

@@ -52,42 +52,36 @@ public class AdminService {
 
     @Autowired
     private ResultSetExtractor resultSetExtractor;
-    public Admin getAdminProfile(String emailId)
-    {
+
+    public Admin getAdminProfile(String emailId) {
         List<Admin> admins = adminrepository.findAll();
-        for(Admin admin:admins)
-        {
-            if(admin.getEmailId().equals(emailId))
-            {
+        for (Admin admin : admins) {
+            if (admin.getEmailId().equals(emailId)) {
                 return admin;
             }
         }
         return null;
     }
-    public List<Employee> getAllEmployees()
-    {
+
+    public List<Employee> getAllEmployees() {
         return employeeRepository.findAll();
     }
-    public Employee findNameById(int id)
-    {
+
+    public Employee findNameById(int id) {
         List<Employee> employees = getAllEmployees();
-        for(Employee employee:employees)
-        {
-            if(employee.getId()==id)
-            {
+        for (Employee employee : employees) {
+            if (employee.getId() == id) {
                 return employee;
             }
         }
         return null;
     }
 
-    public void deleteEmployeeById(int id)
-    {
+    public void deleteEmployeeById(int id) {
         employeeRepository.deleteById(id);
     }
 
-    public void addEmployee(Employee employee)
-    {
+    public void addEmployee(Employee employee) {
         employeeRepository.save(employee);
 
         LoginData loginData = new LoginData();
@@ -99,8 +93,7 @@ public class AdminService {
         loginRepository.save(loginData);
     }
 
-    public List<Zones> getAllZones()
-    {
+    public List<Zones> getAllZones() {
         return zoneRepository.findAll();
     }
 
@@ -157,10 +150,8 @@ public class AdminService {
 
     private void deleteEmployeesByZones(String zoneId) {
         List<Employee> employees = employeeRepository.findAll();
-        for(Employee employee : employees)
-        {
-            if(employee.getZoneId().equals(zoneId))
-            {
+        for (Employee employee : employees) {
+            if (employee.getZoneId().equals(zoneId)) {
                 employeeRepository.deleteById(employee.getId());
             }
         }
@@ -191,8 +182,7 @@ public class AdminService {
     }
 
 
-    public ProductType getProductTypeById(int id)
-    {
+    public ProductType getProductTypeById(int id) {
         return productTypesRepository.findById(id).get();
     }
 
@@ -236,47 +226,44 @@ public class AdminService {
     }
 
 
-    public List<MonthlySales> getData(List<ProductSold> productsSold)
-    {
+    public List<MonthlySales> getData(List<ProductSold> productsSold) {
         List<MonthlySales> monthlySales = new ArrayList<>();
 
         List<ProductSold> productsSoldInMonth = new ArrayList<>();
 
-        String month = productsSold.get(0).getDateSold().substring(5,7);
+        String month = productsSold.get(0).getDateSold().substring(5, 7);
 
-        String year = productsSold.get(0).getDateSold().substring(0,4);
+        String year = productsSold.get(0).getDateSold().substring(0, 4);
 
-        String date = productsSold.get(0).getDateSold().substring(0,7);
+        String date = productsSold.get(0).getDateSold().substring(0, 7);
 
         int intMonth = Integer.parseInt(month);
 
-        String monthString = new DateFormatSymbols().getMonths()[intMonth-1];
+        String monthString = new DateFormatSymbols().getMonths()[intMonth - 1];
 
         String prevMonth = month;
 
-        for(ProductSold productSold : productsSold)
-        {
-            month = productSold.getDateSold().substring(5,7);
+        for (ProductSold productSold : productsSold) {
+            month = productSold.getDateSold().substring(5, 7);
 
-            year = productSold.getDateSold().substring(0,4);
+            year = productSold.getDateSold().substring(0, 4);
 
             intMonth = Integer.parseInt(month);
 
-            monthString = new DateFormatSymbols().getMonths()[intMonth-1] + " - " + year;
+            monthString = new DateFormatSymbols().getMonths()[intMonth - 1] + " - " + year;
 
-            if(!month.equals(prevMonth))
-            {
+            if (!month.equals(prevMonth)) {
                 MonthlySales monthlySale = new MonthlySales();
 
                 intMonth = Integer.parseInt(prevMonth);
 
-                monthString = new DateFormatSymbols().getMonths()[intMonth-1] + " - " + year;
+                monthString = new DateFormatSymbols().getMonths()[intMonth - 1] + " - " + year;
 
                 monthlySale.setMonth(monthString);
 
                 List<ProductSold> dummy = new ArrayList<>();
 
-                for(ProductSold productSold1 : productsSoldInMonth) {
+                for (ProductSold productSold1 : productsSoldInMonth) {
 
                     dummy.add(productSold1);
                 }
@@ -295,9 +282,7 @@ public class AdminService {
                 productsSoldInMonth.clear();
 
                 productsSoldInMonth.add(productSold);
-            }
-            else
-            {
+            } else {
                 productsSoldInMonth.add(productSold);
             }
         }
@@ -305,7 +290,7 @@ public class AdminService {
 
         intMonth = Integer.parseInt(prevMonth);
 
-        monthString = new DateFormatSymbols().getMonths()[intMonth-1] + " - " + year;
+        monthString = new DateFormatSymbols().getMonths()[intMonth - 1] + " - " + year;
 
         monthlySale.setMonth(monthString);
 
@@ -319,47 +304,62 @@ public class AdminService {
 
         return monthlySales;
     }
-    public List<MonthlySales> getAllProductsSold()
-    {
+
+    public List<MonthlySales> getAllProductsSold() {
         List<MonthlySales> allMonthlSales = new ArrayList<>();
 
-        int sMonth = Integer.parseInt(productSoldRepository.findById(1).get().getDateSold().substring(5, 7));
+        String dateSold = productSoldRepository.findById(1).get().getDateSold();
+        int sMonth = Integer.parseInt(dateSold.substring(5, 7));
+        int sYear = Integer.parseInt(dateSold.substring(0, 4));
 
-        SimpleDateFormat formatter = new SimpleDateFormat("MM");
+        System.out.println(sMonth);
+
+        SimpleDateFormat formatterMonth = new SimpleDateFormat("MM");
+        SimpleDateFormat formatterYear = new SimpleDateFormat("YYYY");
+
 
         Date date = new Date();
 
-        int tMonth = Integer.parseInt(formatter.format(date));
+        int tMonth = Integer.parseInt(formatterMonth.format(date));
 
-        for(int i=sMonth;i<=tMonth;i++)
-        {
-            MonthlySales monthlySales = new MonthlySales();
+        int tYear = Integer.parseInt(formatterYear.format(date));
 
-            String monthName = new DateFormatSymbols().getMonths()[i-1];
+        while (sYear <= tYear) {
 
-            List<ProductSold> productsSold = productSoldRepository.findtotalSalesInMonth(monthName);
+            int tempMonth = sYear == tYear ? tMonth : 12;
+            for (int i = sMonth; i <= tempMonth; i++) {
+                MonthlySales monthlySales = new MonthlySales();
 
-            float totalSales = productSoldRepository.findTotalSalesValueInMonth(monthName);
+                String monthName = new DateFormatSymbols().getMonths()[i - 1];
 
-            float totalCommision = 0;
+                List<ProductSold> productsSold = productSoldRepository.findtotalSalesInMonth(monthName, "" + sYear);
 
-            monthlySales.setMonth(monthName + " - " + 2022);
+                System.out.println(productsSold.size());
+                if (productsSold.size() > 0) {
+                    float totalSales = productSoldRepository.findTotalSalesValueInMonth(monthName);
 
-            monthlySales.setTotalSales(totalSales);
+                    float totalCommision = 0;
 
-            monthlySales.setProductsSold(productsSold);
+                    monthlySales.setMonth(monthName + " - " + 2022);
 
-            monthlySales.setCommision(totalCommision);
+                    monthlySales.setTotalSales(totalSales);
 
-            allMonthlSales.add(monthlySales);
+                    monthlySales.setProductsSold(productsSold);
+
+                    monthlySales.setCommision(totalCommision);
+
+                    allMonthlSales.add(monthlySales);
+                }
+
+            }
+            sMonth = 1;
+            sYear++;
         }
-
         return allMonthlSales;
     }
 
 
-    public List<CommisionModel> getAllCommisionModels()
-    {
+    public List<CommisionModel> getAllCommisionModels() {
         return commisionModelRepository.findAll();
     }
 
@@ -367,8 +367,7 @@ public class AdminService {
         return commisionModelRepository.findById(id).get();
     }
 
-    public CommisionModel updateCommisionModelById(int id, CommisionModel commisionModel)
-    {
+    public CommisionModel updateCommisionModelById(int id, CommisionModel commisionModel) {
         CommisionModel commisionModelDetails = commisionModelRepository.findById(id).get();
 
         commisionModelDetails.setCostRange(commisionModel.getCostRange());
@@ -384,29 +383,42 @@ public class AdminService {
 
     public List<MonthlySalesData> getTotalSales() throws SQLException {
         List<MonthlySalesData> allMonthlySalesData = new ArrayList<>();
+        String dateSold = productSoldRepository.findById(1).get().getDateSold();
+        int sMonth = Integer.parseInt(dateSold.substring(5, 7));
+        int sYear = Integer.parseInt(dateSold.substring(0, 4));
 
-        int sMonth = Integer.parseInt(productSoldRepository.findById(1).get().getDateSold().substring(5,7));
-
-        SimpleDateFormat formatter = new SimpleDateFormat("MM");
+        SimpleDateFormat formatterMonth = new SimpleDateFormat("MM");
+        SimpleDateFormat formatterYear = new SimpleDateFormat("YYYY");
 
         Date date = new Date();
 
-        int tMonth = Integer.parseInt(formatter.format(date));
+        int tMonth = Integer.parseInt(formatterMonth.format(date));
+        int tYear = Integer.parseInt(formatterYear.format(date));
 
-        for(int i=sMonth;i<=tMonth;i++)
-        {
-            String monthName = new DateFormatSymbols().getMonths()[i-1];
+        while (sYear <= tYear) {
 
-            MonthlySalesData monthlySalesData = new MonthlySalesData();
+            int tempMonth =  sYear == tYear ? tMonth : 12;
+            for (int i = sMonth; i <= tempMonth; i++) {
+                System.out.println("yes");
+                String monthName = new DateFormatSymbols().getMonths()[i - 1];
 
-            List<TotalSales> totalSales = resultSetExtractor.allData(monthName);
 
-            monthlySalesData.setMonth(monthName + " - 2022");
+                List<TotalSales> totalSales = resultSetExtractor.allData(monthName, ""+sYear);
 
-            monthlySalesData.setTotalSalesinMonth(totalSales);
+                if(totalSales.size() > 0) {
 
-            allMonthlySalesData.add(monthlySalesData);
+                    MonthlySalesData monthlySalesData = new MonthlySalesData();
 
+                    monthlySalesData.setMonth(monthName + " - 2022");
+
+                    monthlySalesData.setTotalSalesinMonth(totalSales);
+
+                    allMonthlySalesData.add(monthlySalesData);
+                }
+
+            }
+            sMonth = 1;
+            sYear++;
         }
 
         return allMonthlySalesData;
@@ -421,9 +433,9 @@ public class AdminService {
 
         MonthlySales monthlySales1 = new MonthlySales();
 
-        String monthName = new DateFormatSymbols().getMonths()[month-1];
+        String monthName = new DateFormatSymbols().getMonths()[month - 1];
 
-        List<ProductSold> productsSold = productSoldRepository.findAllProductSoldByMonth(date.substring(0,4), monthName);
+        List<ProductSold> productsSold = productSoldRepository.findAllProductSoldByMonth(date.substring(0, 4), monthName);
 
         float totalSales = productSoldRepository.findTotalSalesValueInMonth(monthName);
 
@@ -431,7 +443,7 @@ public class AdminService {
 
         monthlySales1.setTotalSales(totalSales);
 
-        monthlySales1.setMonth(monthName + " - " + date.substring(0,4));
+        monthlySales1.setMonth(monthName + " - " + date.substring(0, 4));
 
         monthlySales1.setProductsSold(productsSold);
 
@@ -444,13 +456,14 @@ public class AdminService {
 
         List<MonthlySalesData> allMonthlySalesData = new ArrayList<>();
 
-        int month = Integer.parseInt(str.substring(5,7));
+        int month = Integer.parseInt(str.substring(5, 7));
+        int Year = Integer.parseInt(str.substring(0, 4));
 
-        String monthName = new DateFormatSymbols().getMonths()[month-1];
+        String monthName = new DateFormatSymbols().getMonths()[month - 1];
 
         MonthlySalesData monthlySalesData = new MonthlySalesData();
 
-        List<TotalSales> totalSales = resultSetExtractor.allData(monthName);
+        List<TotalSales> totalSales = resultSetExtractor.allData(monthName, ""+Year);
 
         monthlySalesData.setMonth(monthName + " - 2022");
 
@@ -499,8 +512,7 @@ public class AdminService {
     public String approveAllPendingRequests() {
         List<dummyData> allData = dummyDataRepository.findAll();
 
-        for(dummyData data : allData )
-        {
+        for (dummyData data : allData) {
             ProductSold productSold = new ProductSold();
 
             productSold.setTypeId(data.getTypeId());
@@ -535,11 +547,9 @@ public class AdminService {
 
     public String checkUser(String emailId) {
         List<String> allUsers = loginRepository.findAllUsers();
-        if(allUsers.contains(emailId))
-        {
+        if (allUsers.contains(emailId)) {
             return "Yes Exixts";
-        }
-        else {
+        } else {
             throw new ResourceNotFoundException("User mailId does not exixts");
         }
     }

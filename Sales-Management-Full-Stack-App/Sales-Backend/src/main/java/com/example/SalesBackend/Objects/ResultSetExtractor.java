@@ -10,7 +10,7 @@ import java.util.List;
 public class ResultSetExtractor {
 
 
-    public List<TotalSales> allData(String month) throws SQLException {
+    public List<TotalSales> allData(String month, String sYear) throws SQLException {
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
@@ -23,7 +23,7 @@ public class ResultSetExtractor {
 
         statement = connection.createStatement();
 
-        String sql = "select dateSold as date, sum(cost) as totalSales from sales.productSold where monthname(dateSold )= '" + month + "' group by dateSold";
+        String sql = "select dateSold as date, sum(cost) as totalSales from sales.productSold where monthname(dateSold )= '" + month + "' and Year(dateSold) = '" + sYear + "' group by dateSold";
         System.out.println(sql);
 
         resultSet = statement.executeQuery(String.format(sql));
@@ -49,7 +49,7 @@ public class ResultSetExtractor {
         return totalSalesInMonth;
     }
 
-    public List<TotalSales> allDataForSalesPerson(String month, String empId) throws SQLException {
+    public List<TotalSales> allDataForSalesPerson(String month, String empId, String sYear) throws SQLException {
         Connection connection = null;
         Statement statement = null;
         ResultSet resultSet = null;
@@ -64,7 +64,7 @@ public class ResultSetExtractor {
 
         statement = connection.createStatement();
 
-        String sql = "select dateSold as date, sum(cost) as totalSales from sales.productSold where monthname(dateSold )= '" + month + "' and empId = '" + empId + "'group by dateSold";
+        String sql = "select dateSold as date, sum(cost) as totalSales from sales.productSold where monthname(dateSold )= '" + month + "' and empId = '" + empId + "' and Year(dateSold) = '" + sYear + "' group by dateSold";
         System.out.println(sql);
 
         resultSet = statement.executeQuery(String.format(sql));

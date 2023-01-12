@@ -22,11 +22,11 @@ public interface ProductSoldRepository extends JpaRepository<ProductSold, Intege
              nativeQuery = true)
     Long totalSales(String empId, String monthName);
 
-    @Query(value = "Select * from sales.productSold where monthname(dateSold) = :monthName and empId = :empId", nativeQuery = true)
-    List<ProductSold> findByEmpIdandMonth(String empId, String monthName);
+    @Query(value = "Select * from sales.productSold where monthname(dateSold) = :monthName and empId = :empId and Year(dateSold) = :sYear", nativeQuery = true)
+    List<ProductSold> findByEmpIdandMonth(String empId, String monthName, String sYear);
 
-    @Query(value = "Select * from sales.productSold where monthname(dateSold) = :monthName", nativeQuery = true)
-    List<ProductSold> findtotalSalesInMonth(String monthName);
+    @Query(value = "Select * from sales.productSold where monthname(dateSold) = :monthName and Year(dateSold) = :sYear", nativeQuery = true)
+    List<ProductSold> findtotalSalesInMonth(String monthName, String sYear);
 
     @Query(value = "Select SUM(cost) from sales.productSold where monthname(dateSold) = :monthName", nativeQuery = true)
     float findTotalSalesValueInMonth(String monthName);

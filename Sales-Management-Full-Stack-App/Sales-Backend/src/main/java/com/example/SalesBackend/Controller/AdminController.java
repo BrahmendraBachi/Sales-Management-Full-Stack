@@ -179,6 +179,7 @@ public class AdminController {
     @GetMapping("/productSold")
     public List<MonthlySales> getProductsSold()
     {
+        System.out.println("getProductSold is triggered");
         return adminService.getAllProductsSold();
     }
 
