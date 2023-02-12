@@ -3,8 +3,8 @@ package com.example.SalesBackend.Model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "dummyData")
-public class dummyData {
+@Table(name = "dummydata")
+public class DummyData {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +33,7 @@ public class dummyData {
         this.cost = cost;
     }
 
-    public dummyData()
+    public DummyData()
     {
         super();
     }

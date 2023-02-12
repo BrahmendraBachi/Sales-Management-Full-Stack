@@ -74,7 +74,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/sellProduct")
-    public dummyData sellProduct(@RequestBody ProductSold_Ids productSold_ids)
+    public DummyData sellProduct(@RequestBody ProductSold_Ids productSold_ids)
     {
         System.out.println("Sell Product is Triggered");
         System.out.println(productSold_ids.geteId());

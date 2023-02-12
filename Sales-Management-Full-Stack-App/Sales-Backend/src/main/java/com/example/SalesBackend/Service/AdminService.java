@@ -474,21 +474,21 @@ public class AdminService {
         return allMonthlySalesData;
     }
 
-    public List<dummyData> getAllPendingRequests() {
+    public List<DummyData> getAllPendingRequests() {
         return dummyDataRepository.findAll();
     }
 
-    public List<dummyData> deletePendingRequestById(int productId) {
+    public List<DummyData> deletePendingRequestById(int productId) {
 
         dummyDataRepository.deleteById(productId);
 
         return dummyDataRepository.findAll();
     }
 
-    public List<dummyData> approvePendingRequest(int productId) {
+    public List<DummyData> approvePendingRequest(int productId) {
         ProductSold productSold = new ProductSold();
 
-        dummyData data = dummyDataRepository.findById(productId).get();
+        DummyData data = dummyDataRepository.findById(productId).get();
 
         productSold.setDateSold(data.getDateSold());
 
@@ -510,9 +510,9 @@ public class AdminService {
     }
 
     public String approveAllPendingRequests() {
-        List<dummyData> allData = dummyDataRepository.findAll();
+        List<DummyData> allData = dummyDataRepository.findAll();
 
-        for (dummyData data : allData) {
+        for (DummyData data : allData) {
             ProductSold productSold = new ProductSold();
 
             productSold.setTypeId(data.getTypeId());
@@ -552,5 +552,9 @@ public class AdminService {
         } else {
             throw new ResourceNotFoundException("User mailId does not exixts");
         }
+    }
+
+    public List<Product> getProductByProductId(String productId) {
+        return productRepository.getProductByProductId(productId);
     }
 }

@@ -93,13 +93,13 @@ public class EmployeeService {
     }
 
 
-    public dummyData sellProduct(ProductSold_Ids productSold_ids) {
+    public DummyData sellProduct(ProductSold_Ids productSold_ids) {
 
         Product product = productRepository.findById(productSold_ids.getpId()).get();
 
         Employee employee = employeeRepository.findById(productSold_ids.geteId()).get();
 
-        dummyData productSold = new dummyData();
+        DummyData productSold = new DummyData();
 
         productSold.setProductId(product.getProductId());
 

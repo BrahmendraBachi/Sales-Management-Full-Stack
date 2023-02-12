@@ -94,6 +94,11 @@ public class AdminController {
         return adminService.getAllProducts();
     }
 
+    @GetMapping("/get-productby-productId/{productId}")
+    public List<Product> getProductByProductId(@PathVariable String productId){
+        return adminService.getProductByProductId(productId);
+    }
+
     @PostMapping("/Add_Zone")
     public Zones AddZone(@RequestBody Zones zone)
     {
@@ -220,20 +225,20 @@ public class AdminController {
     }
 
     @GetMapping("/get-pending-requests")
-    public List<dummyData> getPendingRequests()
+    public List<DummyData> getPendingRequests()
     {
         System.out.println("Get Pending Requests is Triggered");
         return adminService.getAllPendingRequests();
     }
 
     @DeleteMapping("delete-request-byId/{pId}")
-    public List<dummyData> deletePendingRequestById(@PathVariable int pId)
+    public List<DummyData> deletePendingRequestById(@PathVariable int pId)
     {
         return adminService.deletePendingRequestById(pId);
     }
 
     @PutMapping("approve-request-by-Id/{pId}")
-    public List<dummyData> approveRequestById(@PathVariable int pId)
+    public List<DummyData> approveRequestById(@PathVariable int pId)
     {
         return adminService.approvePendingRequest(pId);
     }
